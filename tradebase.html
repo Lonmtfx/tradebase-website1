@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeBase – Trading Informationen</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f3;
+      --bg-tertiary: #eeecea;
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b67;
+      --border: rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.22);
+      --accent: #1D9E75;
+      --accent-bg: #E1F5EE;
+      --accent-dark: #0F6E56;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2e2e2b;
+        --text-primary: #f0ede8;
+        --text-secondary: #9a9994;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.2);
+        --accent-bg: #0a3326;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .page-wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      box-shadow: 0 0 40px rgba(0,0,0,0.08);
+    }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--bg-primary);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 18px; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--text-primary); text-decoration: none; }
+    .logo i { color: var(--accent); font-size: 20px; }
+    nav ul { list-style: none; display: flex; gap: 1.5rem; }
+    nav ul a { font-size: 14px; color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
+    nav ul a:hover { color: var(--text-primary); }
+    @media (max-width: 600px) { nav ul { display: none; } }
+
+    /* TICKER */
+    .ticker-bar {
+      background: var(--bg-secondary);
+      padding: 0.6rem 2rem;
+      display: flex; gap: 2rem; overflow-x: auto;
+      border-bottom: 0.5px solid var(--border);
+      scrollbar-width: none;
+    }
+    .ticker-bar::-webkit-scrollbar { display: none; }
+    .ticker-item { display: flex; align-items: center; gap: 6px; font-size: 13px; white-space: nowrap; }
+    .ticker-name { font-weight: 500; }
+    .up { color: var(--accent-dark); }
+    .down { color: #993C1D; }
+
+    /* HERO */
+    .hero {
+      padding: 3rem 2rem 2rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .hero-label {
+      font-size: 12px; color: var(--accent); font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    .hero h1 { font-size: 32px; font-weight: 500; line-height: 1.3; max-width: 520px; margin-bottom: 1rem; }
+    .hero p { font-size: 15px; color: var(--text-secondary); max-width: 480px; line-height: 1.7; margin-bottom: 1.5rem; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: var(--accent); color: #fff; border: none;
+      padding: 10px 20px; border-radius: var(--radius-md);
+      font-size: 14px; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-secondary {
+      background: transparent; color: var(--text-primary);
+      border: 0.5px solid var(--border-strong);
+      padding: 10px 20px; border-radius: var(--radius-md);
+      font-size: 14px; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--bg-secondary); }
+
+    /* SECTIONS */
+    .section { padding: 2rem; border-bottom: 0.5px solid var(--border); }
+    .section-title {
+      font-size: 12px; font-weight: 500; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1.25rem;
+    }
+
+    /* METRICS */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+    .metric-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+    .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .metric-value { font-size: 22px; font-weight: 500; }
+    .metric-change { font-size: 12px; margin-top: 4px; }
+
+    /* ASSETS */
+    .asset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .asset-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+    }
+    .asset-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .asset-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .asset-name { font-size: 14px; font-weight: 500; }
+    .asset-cat { font-size: 11px; color: var(--text-secondary); }
+    .asset-price { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+    .asset-bar-bg { height: 3px; background: var(--border); border-radius: 2px; margin-top: 10px; }
+    .asset-bar { height: 3px; border-radius: 2px; }
+
+    /* CONCEPTS */
+    .concepts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .concept-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .concept-card:hover { border-color: var(--border-strong); background: var(--bg-secondary); }
+    .concept-icon { font-size: 20px; color: var(--accent); margin-bottom: 8px; }
+    .concept-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .concept-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* GLOSSARY */
+    .glossary-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+    .gloss-item {
+      padding: 0.75rem 1rem;
+      border-left: 2px solid var(--accent);
+      background: var(--bg-secondary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .gloss-term { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+    .gloss-def { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* CTA */
+    .cta-strip {
+      padding: 2.5rem 2rem; text-align: center;
+      background: var(--bg-secondary);
+    }
+    .cta-strip h2 { font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; }
+    .cta-strip p { font-size: 14px; color: var(--text-secondary); margin-bottom: 1.25rem; }
+
+    /* DISCLAIMER BANNER */
+    .disclaimer {
+      background: #FAEEDA; color: #633806;
+      padding: 0.6rem 2rem; font-size: 12px;
+      display: flex; align-items: center; gap: 6px;
+      border-bottom: 0.5px solid #FAC775;
+    }
+    @media (prefers-color-scheme: dark) {
+      .disclaimer { background: #2a1e05; color: #FAC775; border-color: #412402; }
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 1.25rem 2rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      border-top: 0.5px solid var(--border);
+      font-size: 12px; color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <i class="ti ti-info-circle" style="font-size:14px"></i>
+    Diese Seite dient ausschließlich zu Informationszwecken und stellt keine Anlageberatung dar. Kurse sind Beispieldaten.
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="#">
+      <i class="ti ti-chart-line"></i>
+      TradeBase
+    </a>
+    <ul>
+      <li><a href="#maerkte">Märkte</a></li>
+      <li><a href="#konzepte">Grundlagen</a></li>
+      <li><a href="#glossar">Glossar</a></li>
+    </ul>
+  </nav>
+
+  <!-- TICKER BAR -->
+  <div class="ticker-bar">
+    <div class="ticker-item"><span class="ticker-name">BTC/USD</span><span class="up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 67.420 (+2,1%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">ETH/USD</span><span class="up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 3.512 (+1,4%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">S&amp;P 500</span><span class="up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 5.431 (+0,7%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">DAX</span><span class="down"><i class="ti ti-arrow-down" style="font-size:11px"></i> 18.204 (-0,3%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">Gold</span><span class="up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 2.341 (+0,5%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">EUR/USD</span><span class="down"><i class="ti ti-arrow-down" style="font-size:11px"></i> 1,073 (-0,1%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">Oil (WTI)</span><span class="down"><i class="ti ti-arrow-down" style="font-size:11px"></i> 78,40 (-0,8%)</span></div>
+    <div class="ticker-item"><span class="ticker-name">NVIDIA</span><span class="up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 1.132 (+3,2%)</span></div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Dein Trading-Einstieg</div>
+    <h1>Finanzmärkte verstehen &amp; smarter handeln</h1>
+    <p>Ob Aktien, Krypto oder Forex – hier findest du alles, was du für den Start in die Welt des Tradings brauchst. Kompakt, verständlich und ohne unnötigen Fachjargon.</p>
+    <div class="hero-btns">
+      <a href="#konzepte" class="btn-primary">Grundlagen lernen</a>
+      <a href="#glossar" class="btn-secondary">Zum Glossar</a>
+    </div>
+  </div>
+
+  <!-- MARKTÜBERBLICK -->
+  <div class="section" id="maerkte">
+    <div class="section-title">Marktüberblick</div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Globale Marktkapitalisierung</div>
+        <div class="metric-value">109 Bio. $</div>
+        <div class="metric-change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +1,2% heute</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Forex-Volumen (24h)</div>
+        <div class="metric-value">4,7 Bio. $</div>
+        <div class="metric-change" style="color: var(--text-secondary)">weltgrößter Markt</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">BTC-Dominanz</div>
+        <div class="metric-value">54,3 %</div>
+        <div class="metric-change" style="color: var(--text-secondary)">stabil</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Volatilitätsindex (VIX)</div>
+        <div class="metric-value">13,8</div>
+        <div class="metric-change down"><i class="ti ti-arrow-down" style="font-size:11px"></i> Geringe Volatilität</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANLAGEKLASSEN -->
+  <div class="section">
+    <div class="section-title">Beliebte Anlageklassen</div>
+    <div class="asset-grid">
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-icon" style="background:#E1F5EE; color:#0F6E56;"><i class="ti ti-building-bank"></i></div>
+          <div>
+            <div class="asset-name">Aktien</div>
+            <div class="asset-cat">Eigenkapital</div>
+          </div>
+        </div>
+        <div class="asset-price">S&amp;P 500 – 5.431</div>
+        <div class="metric-change up">+0,7% heute</div>
+        <div class="asset-bar-bg"><div class="asset-bar" style="width:72%; background:#1D9E75;"></div></div>
+      </div>
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-icon" style="background:#FAEEDA; color:#854F0B;"><i class="ti ti-currency-bitcoin"></i></div>
+          <div>
+            <div class="asset-name">Kryptowährungen</div>
+            <div class="asset-cat">Digital Assets</div>
+          </div>
+        </div>
+        <div class="asset-price">BTC – 67.420 $</div>
+        <div class="metric-change up">+2,1% heute</div>
+        <div class="asset-bar-bg"><div class="asset-bar" style="width:85%; background:#EF9F27;"></div></div>
+      </div>
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-icon" style="background:#EEEDFE; color:#534AB7;"><i class="ti ti-currency-dollar"></i></div>
+          <div>
+            <div class="asset-name">Forex</div>
+            <div class="asset-cat">Devisenmarkt</div>
+          </div>
+        </div>
+        <div class="asset-price">EUR/USD – 1,073</div>
+        <div class="metric-change down">-0,1% heute</div>
+        <div class="asset-bar-bg"><div class="asset-bar" style="width:60%; background:#7F77DD;"></div></div>
+      </div>
+      <div class="asset-card">
+        <div class="asset-header">
+          <div class="asset-icon" style="background:#FAECE7; color:#993C1D;"><i class="ti ti-coin"></i></div>
+          <div>
+            <div class="asset-name">Rohstoffe</div>
+            <div class="asset-cat">Commodities</div>
+          </div>
+        </div>
+        <div class="asset-price">Gold – 2.341 $</div>
+        <div class="metric-change up">+0,5% heute</div>
+        <div class="asset-bar-bg"><div class="asset-bar" style="width:48%; background:#D85A30;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KONZEPTE -->
+  <div class="section" id="konzepte">
+    <div class="section-title">Wichtige Konzepte</div>
+    <div class="concepts-grid">
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-chart-candle"></i></div>
+        <div class="concept-title">Technische Analyse</div>
+        <div class="concept-desc">Charts, Indikatoren und Muster lesen, um zukünftige Kursbewegungen einzuschätzen.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-shield-check"></i></div>
+        <div class="concept-title">Risikomanagement</div>
+        <div class="concept-desc">Stop-Loss, Position Sizing und Diversifikation – so schützt du dein Kapital.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-file-analytics"></i></div>
+        <div class="concept-title">Fundamentalanalyse</div>
+        <div class="concept-desc">Unternehmenszahlen, KGV und Bilanzen verstehen und bewerten.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-list-check"></i></div>
+        <div class="concept-title">Order-Typen</div>
+        <div class="concept-desc">Market, Limit, Stop – der Unterschied und wann welche Order sinnvoll ist.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-arrow-autofit-up"></i></div>
+        <div class="concept-title">Hebel &amp; Margin</div>
+        <div class="concept-desc">Wie Leverage funktioniert – und warum er gefährlich sein kann.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon"><i class="ti ti-route"></i></div>
+        <div class="concept-title">Trading-Strategien</div>
+        <div class="concept-desc">Day Trading, Swing Trading, Scalping – welcher Stil passt zu dir?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOSSAR -->
+  <div class="section" id="glossar">
+    <div class="section-title">Glossar</div>
+    <div class="glossary-list">
+      <div class="gloss-item">
+        <div class="gloss-term">Bull / Bear Market</div>
+        <div class="gloss-def">Steigender (bullish) bzw. fallender (bearish) Markttrend über einen längeren Zeitraum.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Spread</div>
+        <div class="gloss-def">Differenz zwischen Kauf- (Ask) und Verkaufspreis (Bid) eines Assets.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Liquidität</div>
+        <div class="gloss-def">Wie leicht ein Asset ge- oder verkauft werden kann, ohne den Kurs stark zu beeinflussen.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Volatilität</div>
+        <div class="gloss-def">Maß für die Kursschwankungen – hohe Volatilität bedeutet hohes Risiko und hohe Chance.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Portfolio</div>
+        <div class="gloss-def">Die Gesamtheit aller Investments – breite Streuung senkt das Gesamtrisiko.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Stop-Loss</div>
+        <div class="gloss-def">Automatische Verkaufsorder, die bei einem bestimmten Kursniveau ausgelöst wird.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Take-Profit</div>
+        <div class="gloss-def">Order, die eine Position automatisch schließt, sobald ein Gewinnziel erreicht ist.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Diversifikation</div>
+        <div class="gloss-def">Verteilung des Kapitals auf verschiedene Assets, um das Risiko zu verringern.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Long / Short</div>
+        <div class="gloss-def">Long = auf steigende Kurse setzen. Short = auf fallende Kurse spekulieren.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Broker</div>
+        <div class="gloss-def">Vermittler zwischen Käufer und Verkäufer, der Trades ausführt und eine Plattform bereitstellt.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-strip">
+    <h2>Bereit, loszulegen?</h2>
+    <p>Trading beginnt mit Wissen – informiere dich, teste mit Papier-Trading und riskiere nie mehr als du verlieren kannst.</p>
+    <a href="#konzepte" class="btn-primary">Grundlagen ansehen</a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 TradeBase – Nur zu Informationszwecken. Keine Anlageberatung.</span>
+    <span>Kurse sind fiktive Beispieldaten</span>
+  </footer>
+
+</div>
+</body>
+</html>
